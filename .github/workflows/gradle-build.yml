@@ -1,4 +1,4 @@
-name: Simple Direct Build
+name: Final Forge Build
 on: [push, workflow_dispatch]
 
 jobs:
@@ -14,23 +14,28 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
 
-      - name: Manual Compile
+      - name: Compile with Forge Maven
         run: |
-          # 1. إنشاء مجلد للمخرجات
+          # 1. إنشاء مجلدات العمل
           mkdir -p bin
           mkdir -p build/libs
           
-          # 2. تحميل مكتبة Forge 1.8.9 الأساسية لكي يفهم الكود (رابط مباشر وسريع)
-          wget -O forge-bin.jar https://maven.minecraftforge.net/net/minecraftforge/forge/1.8.9-11.15.1.2318/forge-1.8.9-11.15.1.2318-universal.jar
+          # 2. تحميل المكتبة مباشرة من سيرفر Maven Forge (الرابط الذي اخترته)
+          # نستخدم النسخة universal لأنها المكتبة البرمجية الكاملة
+          wget -q -O forge-library.jar "https://maven.minecraftforge.net/#/releases/1.8.9-11.15.0.1656.jar"
           
-          # 3. تجميع ملفات الجافا يدوياً باستخدام المكتبة
-          javac -d bin -cp forge-bin.jar src/main/java/com/hypixelmod/killaura/*.java
+          # 3. التأكد من أن الملف تم تحميله بنجاح من السيرفر
+          if [ ! -s forge-library.jar ]; then echo "Error: Maven link failed (404 or empty)"; exit 1; fi
+
+          # 4. بناء المود (Compile) وربطه بمكتبة الفورج
+          javac -d bin -cp forge-library.jar src/main/java/com/hypixelmod/killaura/*.java
           
-          # 4. ضغط الملفات في ملف Jar واحد
+          # 5. إنشاء ملف الـ Jar النهائي
           jar cvf build/libs/KillauraMod.jar -C bin .
 
-      - name: Upload Result
+      - name: Upload Final Mod
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: My-Final-Mod
+          name: Killaura-Mod-Final
           path: build/libs/KillauraMod.jar
