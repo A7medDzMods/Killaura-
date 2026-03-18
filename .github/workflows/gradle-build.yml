@@ -1,40 +1,36 @@
-name: Forge 1.8.9 Final Fix
-on: [push, workflow_dispatch]
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: '8'
-          distribution: 'temurin'
+    # إعداد الجافا (يجب استخدام إصدار 8 لـ 1.8.9)
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
 
-      - name: Compile from Maven
-        run: |
-          mkdir -p bin
-          mkdir -p build/libs
-          
-          # تحميل الملف مع إضافة "User-Agent" لمنع السيرفر من حظر التحميل
-          curl -L -A "Mozilla/5.0" -o forge-library.jar "https://maven.minecraftforge.net/#/releases/1.8.9-11.15.0.1656"
-          
-          # التأكد من حجم الملف (إذا كان أصغر من 2 ميجا يعني التحميل فشل)
-          FILESIZE=$(stat -c%s "forge-library.jar")
-          if [ $FILESIZE -lt 2000000 ]; then echo "Error: Downloaded file is too small or corrupt!"; exit 1; fi
+    # إعطاء صلاحية التنفيذ لملف gradlew
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
-          # بناء المود
-          javac -d bin -cp forge-library.jar src/main/java/com/hypixelmod/killaura/*.java
-          
-          # تجميع الـ Jar
-          jar cvf build/libs/KillauraMod.jar -C bin .
+    # عملية التجميع وتحويل الكود لملف .jar
+    - name: Build with Gradle
+      run: ./gradlew build
 
-      - name: Upload Mod
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Killaura-Mod-Final
-          path: build/libs/KillauraMod.jar
+    # رفع ملف الـ .jar الناتج كملف قابل للتحميل
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: KillAura
+        path: build/libs/*.jar
