@@ -1,0 +1,29 @@
+name: Forge Gradle Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+        # هذا السطر ضروري جداً لإعطاء صلاحية تشغيل ملف الجرادل
+
+      - name: Build with Gradle
+        run: ./gradlew build
+        # هذا الأمر هو الذي سيصنع لك ملف الـ Jar
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Killaura-Mod-Jar
+          path: build/libs/*.jar
