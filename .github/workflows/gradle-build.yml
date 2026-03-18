@@ -20,7 +20,7 @@ jobs:
           mkdir -p build/libs
           
           # تحميل الملف مع إضافة "User-Agent" لمنع السيرفر من حظر التحميل
-          curl -L -A "Mozilla/5.0" -o forge-library.jar "https://maven.minecraftforge.net/net/minecraftforge/forge/1.8.9-11.15.0.1656/forge-1.8.9-11.15.0.1656-universal.jar"
+          curl -L -A "Mozilla/5.0" -o forge-library.jar "https://maven.minecraftforge.net/#/releases/1.8.9-11.15.0.1656"
           
           # التأكد من حجم الملف (إذا كان أصغر من 2 ميجا يعني التحميل فشل)
           FILESIZE=$(stat -c%s "forge-library.jar")
