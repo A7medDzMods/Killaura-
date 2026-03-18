@@ -5,17 +5,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # هذا السطر يحل مشكلة التحذير الذي ظهر لك بخصوص Node.js 24
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 8
+      - name: Set up JDK 17 # نستخدم 17 لتشغيل Gradle بدون أخطاء
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
+          java-version: '17' 
           distribution: 'temurin'
 
       - name: Setup Gradle
@@ -23,14 +22,13 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          # إصلاح مشكلة الصلاحيات وتوليد الملفات الضرورية
           gradle wrapper
           chmod +x gradlew
-          # تشغيل البناء مع تجاهل الأخطاء البسيطة في الـ Annotations
-          ./gradlew build --no-daemon -x test
+          # نخبر Gradle أن يستخدم Java 8 فقط لبناء المود (للتوافق مع 1.8.9)
+          ./gradlew build -Dorg.gradle.java.home=${{ env.JAVA_HOME_17_X64 }} --no-daemon -x test
 
       - name: Upload Mod Jar
-        if: success() # لن يتم الرفع إلا إذا نجح البناء
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Killaura-Mod-File
