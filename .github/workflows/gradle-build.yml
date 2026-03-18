@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # إعداد الجافا (يجب استخدام إصدار 8 لـ 1.8.9)
     - name: Set up JDK 8
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '8'
         distribution: 'temurin'
@@ -30,7 +30,7 @@ jobs:
 
     # رفع ملف الـ .jar الناتج كملف قابل للتحميل
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: KillAura
-        path: build/libs/*.jar
+        path: Mod/*.jar
