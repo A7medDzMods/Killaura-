@@ -1,36 +1,47 @@
 buildscript {
     repositories {
-        jcenter()
+        maven { url = "https://maven.minecraftforge.net/" }
+        maven { url = "https://files.minecraftforge.net/maven/" }
         mavenCentral()
-        maven {
-            name = "forge"
-            url = "https://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+        jcenter()
     }
     dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.1.3"
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
 
-apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "1.0"
-group = "com.yourname.modid"
-archivesBaseName = "modid"
+group = "com.A7medDz.Killaura" // غير هذا إلى اسم المجموعة الخاص بك
+archivesBaseName = "KillAura" // غير هذا إلى اسم المود الخاص بك
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
 
 minecraft {
-    version = "1.8.9-11.15.0.1656-1.8.9"
+    version = "1.8.9-11.15.1.2318-1.8.9" // تم تحديث الإصدار
     runDir = "run"
-    mappings = "stable_22"
-    makeObfSourceJar = false
+    mappings = "stable_20" // Mappings المناسبة لـ 1.8.9
+    
+    // إذا كان عندك مشكلة في التوقيع، علق هذا السطر
+    // replace '@VERSION@', project.version
+    // replaceIn "source/package/Reference.java" // غير المسار حسب مشروعك
+}
+
+repositories {
+    maven { url = "https://maven.minecraftforge.net/" }
+    maven { url = "https://files.minecraftforge.net/maven/" }
+    maven { url = "https://libraries.minecraft.net/" }
+    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    // Add your dependencies here
+    // أضف اعتمادياتك هنا إذا كان عندك
+    // مثال: compile 'com.google.code.gson:gson:2.8.0'
 }
 
 processResources {
@@ -38,11 +49,11 @@ processResources {
     inputs.property "mcversion", project.minecraft.version
     
     from(sourceSets.main.resources.srcDirs) {
-        include "mcmod.info"
-        expand "version": project.version, "mcversion": project.minecraft.version
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
     
     from(sourceSets.main.resources.srcDirs) {
-        exclude "mcmod.info"
+        exclude 'mcmod.info'
     }
 }
