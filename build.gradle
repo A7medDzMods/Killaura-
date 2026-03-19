@@ -1,41 +1,48 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
-        maven { url "https://maven.minecraftforge.net" }
+        maven {
+            name = "forge"
+            url = "https://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
-        // هذا الإصدار هو المستقر والوحيد الذي يعمل جيداً مع 1.8.9
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT"
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.1.3"
     }
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
 
 version = "1.0"
-group = "com.hypixelmod.killaura"
-archivesBaseName = "KillauraMod"
+group = "com.yourname.modid"
+archivesBaseName = "modid"
 
 minecraft {
-    version = "1.8.9-11.15.0.1656" // إصدار فورج المستقر
+    version = "1.8.9-11.15.0.1656-1.8.9"
     runDir = "run"
-    mappings = "stable_22" // الخرائط البرمجية لـ 1.8.9
-}
-
-repositories {
-    mavenCentral()
+    mappings = "stable_22"
+    makeObfSourceJar = false
 }
 
 dependencies {
-    // لا تحتاج لإضافة مكتبات خارجية هنا، Gradle سيسحبها تلقائياً
+    // Add your dependencies here
 }
 
 processResources {
-    // لضمان قراءة ملف mcmod.info بشكل صحيح
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
-
+    
     from(sourceSets.main.resources.srcDirs) {
         include "mcmod.info"
         expand "version": project.version, "mcversion": project.minecraft.version
+    }
+    
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
     }
 }
