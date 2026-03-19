@@ -3,12 +3,16 @@ name: Build Minecraft Mod
 on:
   push:
     branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
     
     - name: Set up JDK 8
       uses: actions/setup-java@v4
@@ -23,22 +27,63 @@ jobs:
       run: |
         mkdir -p ~/.gradle
         echo "systemProp.http.proxyHost=direct" >> ~/.gradle/gradle.properties
-        
-    - name: Build with Gradle
-      run: |
-        ./gradlew clean
-        ./gradlew build --stacktrace --info
-      continue-on-error: true  # يستمر حتى لو فشل
+        echo "org.gradle.jvmargs=-Xmx2g" >> ~/.gradle/gradle.properties
     
-    - name: Show error details
-      if: failure()
+    - name: Clean previous builds
+      run: ./gradlew clean --stacktrace
+      continue-on-error: true
+    
+    - name: Setup Forge workspace
       run: |
-        cat build/gradle.log || true
-        ls -la ~/.gradle/wrapper/dists/
-
-    # رفع ملف الـ .jar الناتج كملف قابل للتحميل
-    - name: Upload Artifact
+        ./gradlew setupDecompWorkspace --stacktrace
+      continue-on-error: true
+    
+    - name: Build Minecraft Mod
+      run: |
+        echo "🚀 بدء بناء المود..."
+        ./gradlew build --stacktrace
+        
+    - name: Find and list built mod files
+      run: |
+        echo "📦 ملفات المود المنتجة:"
+        find build/libs -name "*.jar" -type f | while read file; do
+          echo "✅ تم العثور على: $file"
+          ls -lh "$file"
+        done
+    
+    - name: Upload built mod
       uses: actions/upload-artifact@v4
       with:
-        name: KillAura
-        path: build/lib/*.jar
+        name: Minecraft-Mod-Build
+        path: |
+          build/libs/*.jar
+          !build/libs/*-sources.jar
+          !build/libs/*-javadoc.jar
+        if-no-files-found: error
+        retention-days: 90
+    
+    - name: Show build summary
+      if: always()
+      run: |
+        echo "## 📊 ملخص البناء" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ تم بناء المود بنجاح!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📁 ملفات المود متوفرة في Artifacts" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -d "build/libs" ]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 قائمة الملفات المنتجة:" >> $GITHUB_STEP_SUMMARY
+          ls -la build/libs/ >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Upload error logs if build failed
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-error-logs
+        path: |
+          build/gradle.log
+          build/reports/
+          build/test-results/
+        retention-days: 30
