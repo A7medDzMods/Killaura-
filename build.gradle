@@ -16,7 +16,7 @@ group = "com.hypixelmod.killaura"
 archivesBaseName = "KillauraMod"
 
 minecraft {
-    version = "1.8.9-11.15.1.2318" // إصدار فورج المستقر
+    version = "1.8.9-11.15.0.1656" // إصدار فورج المستقر
     runDir = "run"
     mappings = "stable_22" // الخرائط البرمجية لـ 1.8.9
 }
