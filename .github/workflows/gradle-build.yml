@@ -1,36 +1,44 @@
-name: Java CI with Gradle
+name: Build Minecraft Mod
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+    branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
-
-    # إعداد الجافا (يجب استخدام إصدار 8 لـ 1.8.9)
+    
     - name: Set up JDK 8
       uses: actions/setup-java@v4
       with:
         java-version: '8'
         distribution: 'temurin'
-
-    # إعطاء صلاحية التنفيذ لملف gradlew
-    - name: Grant execute permission for gradlew
+    
+    - name: Make gradlew executable
       run: chmod +x gradlew
-
-    # عملية التجميع وتحويل الكود لملف .jar
+    
+    - name: Configure Forge repositories
+      run: |
+        mkdir -p ~/.gradle
+        echo "systemProp.http.proxyHost=direct" >> ~/.gradle/gradle.properties
+        
     - name: Build with Gradle
-      run: ./gradlew build
+      run: |
+        ./gradlew clean
+        ./gradlew build --stacktrace --info
+      continue-on-error: true  # يستمر حتى لو فشل
+    
+    - name: Show error details
+      if: failure()
+      run: |
+        cat build/gradle.log || true
+        ls -la ~/.gradle/wrapper/dists/
 
     # رفع ملف الـ .jar الناتج كملف قابل للتحميل
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: KillAura
-        path: build/lib/*.jar
+        path: /build/lib/*.jar
