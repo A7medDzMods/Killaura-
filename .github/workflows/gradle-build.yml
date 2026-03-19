@@ -26,7 +26,7 @@ jobs:
 
     # عملية التجميع وتحويل الكود لملف .jar
     - name: Build with Gradle
-      run: gradlew
+      run: ./gradlew build
 
     # رفع ملف الـ .jar الناتج كملف قابل للتحميل
     - name: Upload Artifact
